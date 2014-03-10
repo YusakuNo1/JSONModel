@@ -207,11 +207,31 @@ extern BOOL isNull(id value)
 #pragma mark - string <-> date
 -(NSDate*)__NSDateFromNSString:(NSString*)string
 {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    string = [string stringByReplacingOccurrencesOfString:@":" withString:@""]; // this is such an ugly code, is this the only way?
-    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HHmmssZZZZ"];
+    NSArray *formatStringList = @[
+                                  @"yyyy-MM-dd'T'HHmmssZZZZ",
+                                  @"yyyy-MM-dd'T'HH:mm:ssZZZZ",
+                                  @"yyyy-MM-dd'T'HH:mm:ss.SSSZZZZ",
+                                  @"yyyy-MM-dd",
+                                  @"yyyy/MM/dd",
+                                  @"dd-MM-yyyy",
+                                  @"dd/MM/yyyy",
+                                  @"yyyy-MM-dd'T'HH:mm:ss'Z'",
+                                  @"yyyy-MM-dd'T'HH:mm:ssZ",
+                                  ];
     
-    return [dateFormatter dateFromString: string];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//    string = [string stringByReplacingOccurrencesOfString:@":" withString:@""]; // this is such an ugly code, is this the only way?
+//    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HHmmssZZZZ"];
+    
+    for (NSString *formatString in formatStringList) {
+        [dateFormatter setDateFormat:formatString];
+        NSDate *result = [dateFormatter dateFromString:string];
+        if (result) {
+            return result;
+        }
+    }
+    
+    return nil;
 }
 
 -(NSString*)__JSONObjectFromNSDate:(NSDate*)date
